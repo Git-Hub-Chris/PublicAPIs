@@ -44,25 +44,28 @@ def get_categories_content(contents: List[str]) -> Tuple[Categories, CategoriesL
     categories = {}
     category_line_num = {}
 
-    for line_num, line_content in enumerate(contents):
+for line_num, line_content in enumerate(contents):
+    if line_content.startswith(anchor):
+        category = line_content.split(anchor)[1].strip()
+        categories[category] = []
+        category_line_num[category] = line_num
+        continue
 
-        if line_content.startswith(anchor):
-            category = line_content.split(anchor)[1].strip()
-            categories[category] = []
-            category_line_num[category] = line_num
-            continue
+    if not line_content.startswith('|') or line_content.startswith('|---'):
+        continue
 
-        if not line_content.startswith('|') or line_content.startswith('|---'):
-            continue
+    # Add this check to ensure category is defined
+    if 'category' not in locals():
+        continue
 
-        raw_title = [
-            raw_content.strip() for raw_content in line_content.split('|')[1:-1]
-        ][0]
+    raw_title = [
+        raw_content.strip() for raw_content in line_content.split('|')[1:-1]
+    ][0]
 
-        title_match = link_re.match(raw_title)
-        if title_match:
-                title = title_match.group(1).upper()
-                categories[category].append(title)
+    title_match = link_re.match(raw_title)
+    if title_match:
+        title = title_match.group(1).upper()
+        categories[category].append(title)
 
     return (categories, category_line_num)
 
